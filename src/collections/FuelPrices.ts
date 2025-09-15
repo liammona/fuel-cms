@@ -25,9 +25,9 @@ export const FuelPrices: CollectionConfig = {
   slug: 'fuelProducts',
   access: {
     read: everyoneRead, // Anyone can read
-    create: adminsOnly, // Only admins can create
-    update: adminsOnly, // Only admins can update
-    delete: adminsOnly, // Only admins can delete
+    create: everyoneRead, // Only admins can create
+    update: everyoneRead, // Only admins can update
+    delete: everyoneRead, // Only admins can delete
   },
   admin: {
     useAsTitle: 'name',
