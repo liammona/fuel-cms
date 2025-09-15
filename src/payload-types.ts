@@ -119,6 +119,7 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  role: 'admin' | 'user';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -150,7 +151,7 @@ export interface FuelProduct {
    */
   name: string;
   fuelType: 'petrol' | 'diesel';
-  location: 'Reef' | 'Coast';
+  location: '1A' | '9c';
   petrolDetails?: {
     octane: '93' | '95';
     type: 'Unleaded' | 'LRP';
@@ -230,6 +231,7 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  role?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

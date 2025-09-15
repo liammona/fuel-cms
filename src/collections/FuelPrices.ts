@@ -1,7 +1,34 @@
-import type {CollectionConfig}  from 'payload/';
+import type { CollectionConfig, Access } from 'payload';
+import type { User } from '../payload-types';
+
+// Public read access for everyone
+const everyoneRead: Access = () => true
+
+// Only allow admins to update
+const adminsOnly: Access = ({ req: { user } }) => {
+  // If no user is logged in, deny access
+  if (!user) return false;
+  
+  // Safely access the user role
+  const userRole = (user as unknown as User)?.role;
+  
+  // If user has admin role, allow access
+  if (userRole === 'admin') {
+    return true;
+  }
+  
+  // Default deny
+  return false;
+};
 
 export const FuelPrices: CollectionConfig = {
   slug: 'fuelProducts',
+  access: {
+    read: everyoneRead, // Anyone can read
+    create: adminsOnly, // Only admins can create
+    update: adminsOnly, // Only admins can update
+    delete: adminsOnly, // Only admins can delete
+  },
   admin: {
     useAsTitle: 'name',
     description: 'Manage individual fuel products and their price history.',
@@ -28,15 +55,22 @@ export const FuelPrices: CollectionConfig = {
     {
       name: 'location',
       type: 'select',
-      options: ['Reef', 'Coast'],
+      options: [
+        { label: 'Zone 1A', value: '1A' },
+        { label: 'Zone 9C', value: '9c' },
+      ],
       required: true,
+      defaultValue: '1A',
     },
     // --- Conditional Fields for Petrol ---
     {
       name: 'petrolDetails',
       type: 'group',
       admin: {
-        condition: (_, siblingData) => siblingData.fuelType === 'petrol',
+        condition: (_, siblingData) => {
+          if (!siblingData) return false;
+          return siblingData.fuelType === 'petrol';
+        },
       },
       fields: [
         {
@@ -58,7 +92,10 @@ export const FuelPrices: CollectionConfig = {
       name: 'dieselDetails',
       type: 'group',
       admin: {
-        condition: (_, siblingData) => siblingData.fuelType === 'diesel',
+        condition: (_, siblingData) => {
+          if (!siblingData) return false;
+          return siblingData.fuelType === 'diesel';
+        },
       },
       fields: [
         {
