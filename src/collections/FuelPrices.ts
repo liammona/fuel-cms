@@ -1,11 +1,15 @@
 import type { CollectionConfig, Access } from 'payload';
 import type { User } from '../payload-types';
 
+type SiblingData = {
+  fuelType?: 'petrol' | 'diesel';
+};
+
 // Public read access for everyone
 const everyoneRead: Access = () => true
 
 // Only allow admins to update
-const adminsOnly: Access = ({ req: { user } }) => {
+const adminsOnly: Access = ({ req: { user } }: { req: { user: User | null } }) => {
   // If no user is logged in, deny access
   if (!user) return false;
   
@@ -52,22 +56,12 @@ export const FuelPrices: CollectionConfig = {
       ],
       required: true,
     },
-    {
-      name: 'location',
-      type: 'select',
-      options: [
-        { label: 'Zone 1A', value: '1A' },
-        { label: 'Zone 9C', value: '9c' },
-      ],
-      required: true,
-      defaultValue: '1A',
-    },
     // --- Conditional Fields for Petrol ---
     {
       name: 'petrolDetails',
       type: 'group',
       admin: {
-        condition: (_, siblingData) => {
+        condition: (_: unknown, siblingData: SiblingData) => {
           if (!siblingData) return false;
           return siblingData.fuelType === 'petrol';
         },
@@ -92,7 +86,7 @@ export const FuelPrices: CollectionConfig = {
       name: 'dieselDetails',
       type: 'group',
       admin: {
-        condition: (_, siblingData) => {
+        condition: (_: unknown, siblingData: SiblingData) => {
           if (!siblingData) return false;
           return siblingData.fuelType === 'diesel';
         },

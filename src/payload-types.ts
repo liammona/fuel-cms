@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     fuelProducts: FuelProduct;
+    grids: Grid;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +78,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     fuelProducts: FuelProductsSelect<false> | FuelProductsSelect<true>;
+    grids: GridsSelect<false> | GridsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -151,7 +153,6 @@ export interface FuelProduct {
    */
   name: string;
   fuelType: 'petrol' | 'diesel';
-  location: '1A' | '9c';
   petrolDetails?: {
     octane: '93' | '95';
     type: 'Unleaded' | 'LRP';
@@ -170,6 +171,29 @@ export interface FuelProduct {
   createdAt: string;
 }
 /**
+ * Manage fuel pricing grids
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "grids".
+ */
+export interface Grid {
+  id: number;
+  /**
+   * Display name for the grid (e.g., "Zone 1A")
+   */
+  label: string;
+  /**
+   * Unique identifier for the grid (e.g., "1A")
+   */
+  value: string;
+  /**
+   * Fuel products that belong to this grid
+   */
+  fuelProducts?: (number | FuelProduct)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
@@ -183,6 +207,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'fuelProducts';
         value: number | FuelProduct;
+      } | null)
+    | ({
+        relationTo: 'grids';
+        value: number | Grid;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -256,7 +284,6 @@ export interface UsersSelect<T extends boolean = true> {
 export interface FuelProductsSelect<T extends boolean = true> {
   name?: T;
   fuelType?: T;
-  location?: T;
   petrolDetails?:
     | T
     | {
@@ -275,6 +302,17 @@ export interface FuelProductsSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "grids_select".
+ */
+export interface GridsSelect<T extends boolean = true> {
+  label?: T;
+  value?: T;
+  fuelProducts?: T;
   updatedAt?: T;
   createdAt?: T;
 }
