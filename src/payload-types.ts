@@ -68,8 +68,9 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    fuelProducts: FuelProduct;
+    'fuel-products': FuelProduct;
     grids: Grid;
+    'fuel-types': FuelType;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,8 +78,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    fuelProducts: FuelProductsSelect<false> | FuelProductsSelect<true>;
+    'fuel-products': FuelProductsSelect<false> | FuelProductsSelect<true>;
     grids: GridsSelect<false> | GridsSelect<true>;
+    'fuel-types': FuelTypesSelect<false> | FuelTypesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -141,32 +143,60 @@ export interface User {
   password?: string | null;
 }
 /**
- * Manage individual fuel products and their price history.
+ * Manage individual fuel products and their pricing
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuelProducts".
+ * via the `definition` "fuel-products".
  */
 export interface FuelProduct {
   id: number;
   /**
-   * e.g., Petrol 95 Unleaded (Reef)
+   * e.g., "Unleaded 93" or "Diesel 50ppm"
+   */
+  displayName: string;
+  /**
+   * The type of fuel this product belongs to
+   */
+  fuelType: number | FuelType;
+  /**
+   * The grid this product belongs to
+   */
+  grid: number | Grid;
+  /**
+   * Price in ZAR
+   */
+  price: number;
+  specifications?: {
+    octane?: ('93' | '95') | null;
+    sulfurContent?: ('50' | '500') | null;
+  };
+  /**
+   * Whether this product is currently available
+   */
+  isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Manage fuel types (e.g., Petrol, Diesel)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fuel-types".
+ */
+export interface FuelType {
+  id: number;
+  /**
+   * e.g., Petrol, Diesel
    */
   name: string;
-  fuelType: 'petrol' | 'diesel';
-  petrolDetails?: {
-    octane: '93' | '95';
-    type: 'Unleaded' | 'LRP';
-  };
-  dieselDetails?: {
-    ppm: '50' | '500';
-  };
-  priceHistory?:
-    | {
-        date: string;
-        value: number;
-        id?: string | null;
-      }[]
-    | null;
+  /**
+   * The grid this fuel type belongs to
+   */
+  grid: number | Grid;
+  /**
+   * The products that belong to this fuel type
+   */
+  fuelProducts?: (number | FuelProduct)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -186,10 +216,6 @@ export interface Grid {
    * Unique identifier for the grid (e.g., "1A")
    */
   value: string;
-  /**
-   * Fuel products that belong to this grid
-   */
-  fuelProducts?: (number | FuelProduct)[] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -205,12 +231,16 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'fuelProducts';
+        relationTo: 'fuel-products';
         value: number | FuelProduct;
       } | null)
     | ({
         relationTo: 'grids';
         value: number | Grid;
+      } | null)
+    | ({
+        relationTo: 'fuel-types';
+        value: number | FuelType;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -279,29 +309,20 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuelProducts_select".
+ * via the `definition` "fuel-products_select".
  */
 export interface FuelProductsSelect<T extends boolean = true> {
-  name?: T;
+  displayName?: T;
   fuelType?: T;
-  petrolDetails?:
+  grid?: T;
+  price?: T;
+  specifications?:
     | T
     | {
         octane?: T;
-        type?: T;
+        sulfurContent?: T;
       };
-  dieselDetails?:
-    | T
-    | {
-        ppm?: T;
-      };
-  priceHistory?:
-    | T
-    | {
-        date?: T;
-        value?: T;
-        id?: T;
-      };
+  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -312,6 +333,16 @@ export interface FuelProductsSelect<T extends boolean = true> {
 export interface GridsSelect<T extends boolean = true> {
   label?: T;
   value?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fuel-types_select".
+ */
+export interface FuelTypesSelect<T extends boolean = true> {
+  name?: T;
+  grid?: T;
   fuelProducts?: T;
   updatedAt?: T;
   createdAt?: T;

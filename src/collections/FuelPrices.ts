@@ -26,106 +26,99 @@ const adminsOnly: Access = ({ req: { user } }: { req: { user: User | null } }) =
 };
 
 export const FuelPrices: CollectionConfig = {
-  slug: 'fuelProducts',
-  access: {
-    read: everyoneRead, // Anyone can read
-    create: everyoneRead, // Only admins can create
-    update: everyoneRead, // Only admins can update
-    delete: everyoneRead, // Only admins can delete
-  },
+  slug: 'fuel-products',
   admin: {
-    useAsTitle: 'name',
-    description: 'Manage individual fuel products and their price history.',
+    useAsTitle: 'displayName',
+    defaultColumns: ['displayName', 'fuelType', 'price', 'updatedAt'],
+    description: 'Manage individual fuel products and their pricing',
+  },
+  access: {
+    read: everyoneRead,
+    create: everyoneRead,
+    update: everyoneRead,
+    delete: everyoneRead,
   },
   fields: [
     {
-      name: 'name',
+      name: 'displayName',
       type: 'text',
       required: true,
-      label: 'Product Display Name',
+      label: 'Display Name',
       admin: {
-        description: 'e.g., Petrol 95 Unleaded (Reef)',
+        description: 'e.g., "Unleaded 93" or "Diesel 50ppm"',
       },
     },
     {
       name: 'fuelType',
-      type: 'select',
-      options: [
-        { label: 'Petrol', value: 'petrol' },
-        { label: 'Diesel', value: 'diesel' },
-      ],
+      type: 'relationship',
+      relationTo: 'fuel-types' as any,
       required: true,
-    },
-    // --- Conditional Fields for Petrol ---
-    {
-      name: 'petrolDetails',
-      type: 'group',
       admin: {
-        condition: (_: unknown, siblingData: SiblingData) => {
-          if (!siblingData) return false;
-          return siblingData.fuelType === 'petrol';
-        },
+        description: 'The type of fuel this product belongs to',
       },
+    },
+    {
+      name: 'grid',
+      type: 'relationship',
+      relationTo: 'grids' as any,
+      required: true,
+      admin: {
+        description: 'The grid this product belongs to',
+      },
+    },
+    {
+      name: 'price',
+      type: 'number',
+      required: true,
+      min: 0,
+      admin: {
+        step: 0.01,
+        description: 'Price in ZAR',
+      },
+    },
+    {
+      name: 'specifications',
+      type: 'group',
+      label: 'Product Specifications',
       fields: [
         {
           name: 'octane',
           type: 'select',
+          label: 'Octane Rating',
           options: ['93', '95'],
-          required: true,
-        },
-        {
-          name: 'type',
-          type: 'select',
-          options: ['Unleaded', 'LRP'],
-          required: true,
-        },
-      ],
-    },
-    // --- Conditional Fields for Diesel ---
-    {
-      name: 'dieselDetails',
-      type: 'group',
-      admin: {
-        condition: (_: unknown, siblingData: SiblingData) => {
-          if (!siblingData) return false;
-          return siblingData.fuelType === 'diesel';
-        },
-      },
-      fields: [
-        {
-          name: 'ppm',
-          type: 'select',
-          label: 'PPM (Parts Per Million)',
-          options: ['50', '500'],
-          required: true,
-        },
-      ],
-    },
-    // --- Array for Price History ---
-    {
-      name: 'priceHistory',
-      type: 'array',
-      label: 'Price History',
-      minRows: 1,
-      fields: [
-        {
-          name: 'date',
-          type: 'date',
-          required: true,
           admin: {
-            date: {
-              pickerAppearance: 'monthOnly',
-              displayFormat: 'MMMM yyyy',
+            condition: (_, siblingData) => {
+              if (!siblingData?.fuelType) return false;
+              // This will be checked against the related fuel type
+              return true; // Will be filtered in the frontend
             },
           },
         },
         {
-          name: 'value',
-          type: 'number',
-          required: true,
-          label: 'Price (in cents)',
+          name: 'sulfurContent',
+          type: 'select',
+          label: 'Sulfur Content (PPM)',
+          options: ['50', '500'],
+          admin: {
+            condition: (_, siblingData) => {
+              if (!siblingData?.fuelType) return false;
+              // This will be checked against the related fuel type
+              return true; // Will be filtered in the frontend
+            },
+          },
         },
       ],
     },
+    {
+      name: 'isActive',
+      type: 'checkbox',
+      label: 'Active',
+      defaultValue: true,
+      admin: {
+        description: 'Whether this product is currently available',
+      },
+    },
   ],
 };
+
+export default FuelPrices;

@@ -10,6 +10,8 @@ import sharp from 'sharp'
 import { Users } from './collections/Users'
 import { FuelPrices } from './collections/FuelPrices'
 import { Grids } from './collections/Grids'
+import { FuelTypes } from './collections/FuelTypes'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -25,7 +27,7 @@ export default buildConfig({
         },
       }
     },
-  collections: [Users, FuelPrices, Grids],
+  collections: [Users, FuelPrices, Grids, FuelTypes],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

@@ -11,12 +11,11 @@ const adminsOnly: Access = ({ req: { user } }) => {
   return userRole === 'admin';
 };
 
-export const Grids: CollectionConfig = {
-  slug: 'grids',
+export const FuelTypes: CollectionConfig = {
+  slug: 'fuel-types',
   admin: {
-    useAsTitle: 'label',
-    description: 'Manage fuel pricing grids',
-    defaultColumns: ['label', 'value', 'updatedAt'],
+    useAsTitle: 'name',
+    description: 'Manage fuel types (e.g., Petrol, Diesel)',
   },
   access: {
     read: everyoneRead,
@@ -26,24 +25,33 @@ export const Grids: CollectionConfig = {
   },
   fields: [
     {
-      name: 'label',
+      name: 'name',
       type: 'text',
       required: true,
-      label: 'Grid Label',
+      label: 'Fuel Type Name',
       admin: {
-        description: 'Display name for the grid (e.g., "Zone 1A")',
+        description: 'e.g., Petrol, Diesel',
       },
     },
     {
-      name: 'value',
-      type: 'text',
+      name: 'grid',
+      type: 'relationship',
+      relationTo: 'grids' as any,
       required: true,
-      label: 'Grid Value',
       admin: {
-        description: 'Unique identifier for the grid (e.g., "1A")',
+        description: 'The grid this fuel type belongs to',
+      },
+    },
+    {
+      name: 'fuelProducts',
+      type: 'relationship',
+      relationTo: 'fuel-products' as any,
+      hasMany: true,
+      admin: {
+        description: 'The products that belong to this fuel type',
       },
     },
   ],
 };
 
-export default Grids;
+export default FuelTypes;
