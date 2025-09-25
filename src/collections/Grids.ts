@@ -6,6 +6,9 @@ export const Grids: CollectionConfig = {
     useAsTitle: 'gridName',
     description: 'Manage a list of all pricing grids (e.g., 1A, 9c).',
   },
+  access: {
+    read: () => true,
+  },
   fields: [
     {
       name: 'gridName',

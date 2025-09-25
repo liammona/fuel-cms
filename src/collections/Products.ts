@@ -6,6 +6,9 @@ export const Products: CollectionConfig = {
     useAsTitle: 'productName',
     description: 'Manage a list of all products (e.g., ULP95, Diesel).',
   },
+  access: {
+    read: () => true,
+  },
   fields: [
     {
       name: 'productName',

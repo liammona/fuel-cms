@@ -7,6 +7,9 @@ export const ProductPrices: CollectionConfig = {
     description: 'Link products to grids and manage their price history.',
     listSearchableFields: ['product', 'grid'],
   },
+  access: {
+    read: () => true,
+  },
   fields: [
     {
       name: 'product',
