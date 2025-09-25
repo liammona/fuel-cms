@@ -8,9 +8,9 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Users } from './collections/Users'
-import { FuelPrices } from './collections/FuelPrices'
+import { ProductPrices } from './collections/ProductPrices'
 import { Grids } from './collections/Grids'
-import { FuelTypes } from './collections/FuelTypes'
+import { Products } from './collections/Products'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -27,7 +27,7 @@ export default buildConfig({
         },
       }
     },
-  collections: [Users, FuelPrices, Grids, FuelTypes],
+  collections: [Users, ProductPrices, Grids, Products],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

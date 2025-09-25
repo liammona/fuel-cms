@@ -68,9 +68,9 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    'fuel-products': FuelProduct;
+    'product-prices': ProductPrice;
     grids: Grid;
-    'fuel-types': FuelType;
+    products: Product;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -78,9 +78,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    'fuel-products': FuelProductsSelect<false> | FuelProductsSelect<true>;
+    'product-prices': ProductPricesSelect<false> | ProductPricesSelect<true>;
     grids: GridsSelect<false> | GridsSelect<true>;
-    'fuel-types': FuelTypesSelect<false> | FuelTypesSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -143,79 +143,46 @@ export interface User {
   password?: string | null;
 }
 /**
- * Manage individual fuel products and their pricing
+ * Link products to grids and manage their price history.
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuel-products".
+ * via the `definition` "product-prices".
  */
-export interface FuelProduct {
+export interface ProductPrice {
   id: number;
-  /**
-   * e.g., "Unleaded 93" or "Diesel 50ppm"
-   */
-  displayName: string;
-  /**
-   * The type of fuel this product belongs to
-   */
-  fuelType: number | FuelType;
-  /**
-   * The grid this product belongs to
-   */
+  product: number | Product;
   grid: number | Grid;
-  /**
-   * Price in ZAR
-   */
-  price: number;
-  specifications?: {
-    octane?: ('93' | '95') | null;
-    sulfurContent?: ('50' | '500') | null;
-  };
-  /**
-   * Whether this product is currently available
-   */
-  isActive?: boolean | null;
+  priceHistory?:
+    | {
+        price: number;
+        effectiveDate: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Manage fuel types (e.g., Petrol, Diesel)
+ * Manage a list of all products (e.g., ULP95, Diesel).
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuel-types".
+ * via the `definition` "products".
  */
-export interface FuelType {
+export interface Product {
   id: number;
-  /**
-   * e.g., Petrol, Diesel
-   */
-  name: string;
-  /**
-   * The grid this fuel type belongs to
-   */
-  grid: number | Grid;
-  /**
-   * The products that belong to this fuel type
-   */
-  fuelProducts?: (number | FuelProduct)[] | null;
+  productName: string;
   updatedAt: string;
   createdAt: string;
 }
 /**
- * Manage fuel pricing grids
+ * Manage a list of all pricing grids (e.g., 1A, 9c).
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "grids".
  */
 export interface Grid {
   id: number;
-  /**
-   * Display name for the grid (e.g., "Zone 1A")
-   */
-  label: string;
-  /**
-   * Unique identifier for the grid (e.g., "1A")
-   */
-  value: string;
+  gridName: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -231,16 +198,16 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'fuel-products';
-        value: number | FuelProduct;
+        relationTo: 'product-prices';
+        value: number | ProductPrice;
       } | null)
     | ({
         relationTo: 'grids';
         value: number | Grid;
       } | null)
     | ({
-        relationTo: 'fuel-types';
-        value: number | FuelType;
+        relationTo: 'products';
+        value: number | Product;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -309,20 +276,18 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuel-products_select".
+ * via the `definition` "product-prices_select".
  */
-export interface FuelProductsSelect<T extends boolean = true> {
-  displayName?: T;
-  fuelType?: T;
+export interface ProductPricesSelect<T extends boolean = true> {
+  product?: T;
   grid?: T;
-  price?: T;
-  specifications?:
+  priceHistory?:
     | T
     | {
-        octane?: T;
-        sulfurContent?: T;
+        price?: T;
+        effectiveDate?: T;
+        id?: T;
       };
-  isActive?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -331,19 +296,16 @@ export interface FuelProductsSelect<T extends boolean = true> {
  * via the `definition` "grids_select".
  */
 export interface GridsSelect<T extends boolean = true> {
-  label?: T;
-  value?: T;
+  gridName?: T;
   updatedAt?: T;
   createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "fuel-types_select".
+ * via the `definition` "products_select".
  */
-export interface FuelTypesSelect<T extends boolean = true> {
-  name?: T;
-  grid?: T;
-  fuelProducts?: T;
+export interface ProductsSelect<T extends boolean = true> {
+  productName?: T;
   updatedAt?: T;
   createdAt?: T;
 }

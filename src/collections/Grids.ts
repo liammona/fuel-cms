@@ -1,49 +1,19 @@
-import type { CollectionConfig, Access } from 'payload';
-import type { User } from '../payload-types';
-
-// Public read access for everyone
-const everyoneRead: Access = () => true;
-
-// Only allow admins to update
-const adminsOnly: Access = ({ req: { user } }) => {
-  if (!user) return false;
-  const userRole = (user as unknown as User)?.role;
-  return userRole === 'admin';
-};
+import type { CollectionConfig } from 'payload'
 
 export const Grids: CollectionConfig = {
   slug: 'grids',
   admin: {
-    useAsTitle: 'label',
-    description: 'Manage fuel pricing grids',
-    defaultColumns: ['label', 'value', 'updatedAt'],
-  },
-  access: {
-    read: everyoneRead,
-    create: everyoneRead,
-    update: everyoneRead,
-    delete: everyoneRead,
+    useAsTitle: 'gridName',
+    description: 'Manage a list of all pricing grids (e.g., 1A, 9c).',
   },
   fields: [
     {
-      name: 'label',
+      name: 'gridName',
+      label: 'Grid Name',
       type: 'text',
       required: true,
-      label: 'Grid Label',
-      admin: {
-        description: 'Display name for the grid (e.g., "Zone 1A")',
-      },
-    },
-    {
-      name: 'value',
-      type: 'text',
-      required: true,
-      label: 'Grid Value',
-      admin: {
-        description: 'Unique identifier for the grid (e.g., "1A")',
-      },
+      unique: true,
+      index: true,
     },
   ],
-};
-
-export default Grids;
+}
